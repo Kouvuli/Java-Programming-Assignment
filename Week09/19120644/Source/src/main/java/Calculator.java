@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 
-public class Calculation {
+public class Calculator {
     public int priority(String a){
         if (a.equals("+")||a.equals("-")){
             return 1;
@@ -18,10 +18,26 @@ public class Calculation {
         return 0;
     }
     public boolean isOperand(String a){
-        if (StringUtils.isNumeric(a)){
-            return true;
+//        if (StringUtils.isNumeric(a)){
+//            return true;
+//        }
+//        return false;
+
+        try {
+            @SuppressWarnings("unused")
+            int x = Integer.parseInt(a);
+
+            return true; //String is an Integer
+        } catch (NumberFormatException e) {
+            try{
+
+                float y=Float.parseFloat(a);
+                return true;
+            }catch (NumberFormatException exception){
+                return false;
+            }
+
         }
-        return false;
     }
     public boolean isOperation(String a){
         if (a.equals("+")||a.equals("-")||a.equals("*")||a.equals("/")||a.equals("^")){
@@ -35,7 +51,19 @@ public class Calculation {
         Stack<String> stack=new Stack<>();
         Queue<String> queue = new LinkedList<>();
         for (int i=0;i<a.length();i++){
-            String currChar=String.valueOf(a.charAt(i));
+            String currChar=String.valueOf(a.charAt(i));;
+            int j=i+1;
+
+            while (j<a.length()&&!String.valueOf(a.charAt(j)).equals(" ")){
+                currChar+=String.valueOf(a.charAt(j));
+
+                j++;
+
+            }
+            i=j;
+
+
+
             if (currChar.equals(" ")){
                 continue;
             }
@@ -57,7 +85,8 @@ public class Calculation {
                     else if (priority(currChar)<=priority(stack.peek())){
                         queue.add(stack.peek());
                         stack.pop();
-                        i--;
+                        i-=2;
+                        continue;
                     }
                 }
             }
@@ -84,11 +113,21 @@ public class Calculation {
         }
         return result;
     }
-    public int evaluate(String postfix){
+    public float evaluate(String infix){
+        String postfix=infixToPostfix(infix);
         Stack<String> stack=new Stack<>();
 
         for(int i=0;i<postfix.length();i++){
             String currChar=String.valueOf(postfix.charAt(i));
+            int j=i+1;
+            if (j<postfix.length()){
+                while (!String.valueOf(postfix.charAt(j)).equals(" ")){
+                    currChar+=String.valueOf(postfix.charAt(j));
+                    j++;
+
+                }
+                i=j;
+            }
             if (currChar.equals(" ")){
                 continue;
             }
@@ -102,23 +141,28 @@ public class Calculation {
                 String a=stack.peek();
                 stack.pop();
                 if (currChar.equals("+")){
-                    int temp=Integer.parseInt(a)+Integer.parseInt(b);
+                    float temp=Float.parseFloat(a)+Float.parseFloat(b);
                     stack.push(String.valueOf(temp));
                 }
                 else if (currChar.equals("-")){
-                    int temp=Integer.parseInt(a)-Integer.parseInt(b);
+                    float temp=Float.parseFloat(a)-Float.parseFloat(b);
                     stack.push(String.valueOf(temp));
                 }
                 else if (currChar.equals("*")){
-                    int temp=Integer.parseInt(a)*Integer.parseInt(b);
+                    float temp=Float.parseFloat(a)*Float.parseFloat(b);
                     stack.push(String.valueOf(temp));
                 }
                 else if (currChar.equals("/")){
-                    int temp=Integer.parseInt(a)/Integer.parseInt(b);
+                    float temp=Float.parseFloat(a)/Float.parseFloat(b);
+                    stack.push(String.valueOf(temp));
+                }
+                else if (currChar.equals("^")){
+                    float temp=(float)Math.pow(Float.parseFloat(a),Float.parseFloat(b));
+
                     stack.push(String.valueOf(temp));
                 }
             }
         }
-        return Integer.parseInt(stack.pop());
+        return Float.parseFloat(stack.pop());
     }
 }
